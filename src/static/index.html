@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-start">
+            <a href="#" class="navbar-brand">Database Viewer</a>
+            <!-- Table selector will be injected here by JavaScript -->
+        </div>
+        <div class="navbar-menu">
+            <span id="connectionStatus" class="connected">
+                <i class="fas fa-database"></i> Connected
+            </span>
+            <a class="navbar-item" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+                <span>Theme</span>
+            </a>
+            <a class="navbar-item" onclick="showTableInfo()">
+                <i class="fas fa-info-circle"></i>
+                <span>Table Info</span>
+            </a>
+            <a class="navbar-item" onclick="refreshData()">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+            </a>
+            <a class="navbar-item" onclick="downloadCSV()">
+                <i class="fas fa-download"></i>
+                <span>Export</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="tableInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Table Information</h2>
+            <div id="tableInfoContent"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="column-selector-dropdown">
+                <button class="column-selector-btn" onclick="toggleColumnSelector()">
+                    <span>Select Columns</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="column-selector-content" id="columnSelectorContent">
+                    <div id="columnOptions">
+                        <!-- Column options will be dynamically populated -->
+                    </div>
+                    <div class="column-selector-actions">
+                        <button class="select-all" onclick="toggleAllColumns(true)">Select All</button>
+                        <button class="select-all" onclick="toggleAllColumns(false)">Clear All</button>
+                        <button class="apply" onclick="applyColumnSelection()">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-controls">
+                <h3>Add New Filter</h3>
+                <select id="columnSelect">
+                    <option value="">Select Column</option>
+                </select>
+
+                <select id="filterType">
+                    <option value="equals">Equals</option>
+                    <option value="contains">Contains</option>
+                    <option value="startsWith">Starts With</option>
+                    <option value="endsWith">Ends With</option>
+                    <option value="greaterThan">Greater Than</option>
+                    <option value="lessThan">Less Than</option>
+                    <option value="between">Between</option>
+                    <option value="in">In List (comma separated)</option>
+                </select>
+
+                <input type="text" id="filterValue" placeholder="Filter value...">
+                <div id="additionalFilterInputs"></div>
+                <button onclick="addFilter()">Add Filter</button>
+            </div>
+
+            <div class="active-filters">
+                <h3>Active Filters</h3>
+                <div id="activeFilters">
+                    <!-- Active filters will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-message" id="tableMessage">
+                Please select a table to view its data
+            </div>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <!-- Headers will be dynamically populated -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be dynamically populated -->
+                </tbody>
+            </table>
+            <div id="paginationInfo"></div>
+            <div class="pagination-controls">
+                <button id="prevBtn">Previous</button>
+                <button id="nextBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
