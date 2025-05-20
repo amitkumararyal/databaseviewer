@@ -46,47 +46,105 @@
 
     <div class="container">
         <div class="sidebar">
-            <div class="column-selector-dropdown">
-                <button class="column-selector-btn" onclick="toggleColumnSelector()">
-                    <span>Select Columns</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="column-selector-content" id="columnSelectorContent">
-                    <div id="columnOptions">
-                        <!-- Column options will be dynamically populated -->
+            <div class="config-panel">
+                <div class="config-panel-header">
+                    <i class="fas fa-database"></i>
+                    <h3>Data Configuration</h3>
+                </div>
+                
+                <div class="config-section">
+                    <!-- Table Selection -->
+                    <div class="config-group">
+                        <label>
+                            <i class="fas fa-table"></i>
+                            Table Selection
+                        </label>
+                        <div class="select-container">
+                            <select id="tableSelect" class="custom-select">
+                                <option value="">Select a table...</option>
+                            </select>
+                            <i class="fas fa-chevron-down select-arrow"></i>
+                        </div>
                     </div>
-                    <div class="column-selector-actions">
-                        <button class="select-all" onclick="toggleAllColumns(true)">Select All</button>
-                        <button class="select-all" onclick="toggleAllColumns(false)">Clear All</button>
-                        <button class="apply" onclick="applyColumnSelection()">Apply</button>
+
+                    <!-- Column Selection -->
+                    <div class="config-group">
+                        <label>
+                            <i class="fas fa-columns"></i>
+                            Column Selection
+                        </label>
+                        <button class="config-button" onclick="toggleColumnSelector()">
+                            <span>Manage Visible Columns</span>
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        
+                        <!-- Column Selector Dropdown -->
+                        <div class="column-selector-panel" id="columnSelectorContent">
+                            <div class="panel-header">
+                                <span>Configure Columns</span>
+                                <div class="panel-actions">
+                                    <button class="action-btn" onclick="toggleAllColumns(true)">
+                                        <i class="fas fa-check-square"></i>
+                                        All
+                                    </button>
+                                    <button class="action-btn" onclick="toggleAllColumns(false)">
+                                        <i class="fas fa-square"></i>
+                                        None
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="column-list" id="columnOptions">
+                                <!-- Column options will be populated by JavaScript -->
+                            </div>
+                            
+                            <div class="panel-footer">
+                                <button class="apply-btn" onclick="applyColumnSelection()">
+                                    <i class="fas fa-check"></i>
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="filter-controls">
-                <h3>Add New Filter</h3>
-                <select id="columnSelect">
-                    <option value="">Select Column</option>
-                </select>
+                <h3><i class="fas fa-filter"></i> Add New Filter</h3>
+                <div class="filter-group">
+                    <label for="columnSelect">Column</label>
+                    <select id="columnSelect">
+                        <option value="">Select Column</option>
+                    </select>
+                </div>
 
-                <select id="filterType">
-                    <option value="equals">Equals</option>
-                    <option value="contains">Contains</option>
-                    <option value="startsWith">Starts With</option>
-                    <option value="endsWith">Ends With</option>
-                    <option value="greaterThan">Greater Than</option>
-                    <option value="lessThan">Less Than</option>
-                    <option value="between">Between</option>
-                    <option value="in">In List (comma separated)</option>
-                </select>
+                <div class="filter-group">
+                    <label for="filterType">Filter Type</label>
+                    <select id="filterType">
+                        <option value="equals">Equals</option>
+                        <option value="contains">Contains</option>
+                        <option value="startsWith">Starts With</option>
+                        <option value="endsWith">Ends With</option>
+                        <option value="greaterThan">Greater Than</option>
+                        <option value="lessThan">Less Than</option>
+                        <option value="between">Between</option>
+                        <option value="in">In List (comma separated)</option>
+                    </select>
+                </div>
 
-                <input type="text" id="filterValue" placeholder="Filter value...">
-                <div id="additionalFilterInputs"></div>
-                <button onclick="addFilter()">Add Filter</button>
+                <div class="filter-group">
+                    <label for="filterValue">Filter Value</label>
+                    <input type="text" id="filterValue" placeholder="Enter value...">
+                    <div id="additionalFilterInputs"></div>
+                </div>
+
+                <button onclick="addFilter()">
+                    <i class="fas fa-plus"></i> Add Filter
+                </button>
             </div>
 
             <div class="active-filters">
-                <h3>Active Filters</h3>
+                <h3><i class="fas fa-list"></i> Active Filters</h3>
                 <div id="activeFilters">
                     <!-- Active filters will be displayed here -->
                 </div>

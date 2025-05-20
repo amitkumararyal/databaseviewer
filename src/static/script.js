@@ -11,6 +11,8 @@ let availableTables = [];
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Add table selection event listener
+    document.getElementById('tableSelect').addEventListener('change', (e) => handleTableSelection(e.target.value));
     document.getElementById('columnSelect').addEventListener('change', updateFilterTypes);
     document.getElementById('filterType').addEventListener('change', onFilterTypeChange);
     document.getElementById('prevBtn').addEventListener('click', () => {
@@ -41,26 +43,17 @@ async function fetchAvailableTables() {
 }
 
 function populateTableSelector() {
-    const container = document.getElementById('tableSelect') || createTableSelector();
-    container.innerHTML = `
-        <select onchange="handleTableSelection(this.value)">
-            <option value="">Select Table</option>
-            ${availableTables.map(table => `
-                <option value="${table}" ${table === currentTable ? 'selected' : ''}>
-                    ${table}
-                </option>
-            `).join('')}
-        </select>
+    const tableSelect = document.getElementById('tableSelect');
+    if (!tableSelect) return;
+    
+    tableSelect.innerHTML = `
+        <option value="">Select a table...</option>
+        ${availableTables.map(table => `
+            <option value="${table}" ${table === currentTable ? 'selected' : ''}>
+                ${table}
+            </option>
+        `).join('')}
     `;
-}
-
-function createTableSelector() {
-    const navbar = document.querySelector('.navbar-start');
-    const container = document.createElement('div');
-    container.id = 'tableSelect';
-    container.className = 'navbar-item';
-    navbar.insertBefore(container, navbar.firstChild);
-    return container;
 }
 
 async function handleTableSelection(tableName) {
@@ -76,8 +69,12 @@ async function handleTableSelection(tableName) {
             throw new Error(data.error || 'Failed to fetch table structure');
         }
         
-        // Reset filters and pagination
-        activeFilters = [];
+        // Get the new column names
+        const newColumnNames = data.columns.map(col => col.name);
+        
+        // Filter out any filters that reference columns that don't exist in the new table
+        activeFilters = activeFilters.filter(filter => newColumnNames.includes(filter.column));
+        
         currentPage = 1;
         selectedColumns = new Set(data.columns.map(col => col.name));
         availableColumns = data.columns;
@@ -510,28 +507,6 @@ function toggleColumnSelector() {
     content.classList.toggle('show');
 }
 
-function populateColumnSelector(columns) {
-    const container = document.getElementById('columnOptions');
-    container.innerHTML = columns.map((column, index) => `
-        <div class="column-option" title="Type: ${column.type}${column.nullable ? ' (Nullable)' : ''}\n${column.primary_key ? 'Primary Key' : ''}">
-            <input type="checkbox" 
-                id="col_${index}" 
-                value="${column.name}" 
-                ${selectedColumns.has(column.name) ? 'checked' : ''}
-                onchange="handleColumnSelection(this)">
-            <label for="col_${index}">${column.name}</label>
-        </div>
-    `).join('');
-}
-
-function handleColumnSelection(checkbox) {
-    if (checkbox.checked) {
-        selectedColumns.add(checkbox.value);
-    } else {
-        selectedColumns.delete(checkbox.value);
-    }
-}
-
 function toggleAllColumns(select) {
     const checkboxes = document.querySelectorAll('#columnOptions input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
@@ -542,6 +517,14 @@ function toggleAllColumns(select) {
             selectedColumns.delete(checkbox.value);
         }
     });
+}
+
+function handleColumnSelection(checkbox) {
+    if (checkbox.checked) {
+        selectedColumns.add(checkbox.value);
+    } else {
+        selectedColumns.delete(checkbox.value);
+    }
 }
 
 function applyColumnSelection() {
@@ -555,24 +538,38 @@ function applyColumnSelection() {
     fetchTableData();
 }
 
+function populateColumnSelector(columns) {
+    const container = document.getElementById('columnOptions');
+    if (!container) return;
+    
+    container.innerHTML = columns.map((column, index) => `
+        <div class="column-option" title="${column.type}${column.nullable ? ' (Nullable)' : ''}${column.primary_key ? ' - Primary Key' : ''}">
+            <input type="checkbox" 
+                id="col_${index}" 
+                value="${column.name}" 
+                ${selectedColumns.has(column.name) ? 'checked' : ''}
+                onchange="handleColumnSelection(this)">
+            <label for="col_${index}">${column.name}</label>
+        </div>
+    `).join('');
+
+    // Update the filter dropdown as well
+    updateFilterColumnDropdown();
+}
+
 function updateFilterColumnDropdown() {
     const columnSelect = document.getElementById('columnSelect');
-    columnSelect.innerHTML = '<option value="">Select Column</option>';
-    
-    availableColumns.forEach(col => {
-        const type = String(col.type).toLowerCase();
-        const isTextType = type.includes('char') || type.includes('text');
-        const isNumericType = type.includes('int') || type.includes('decimal') || type.includes('float');
-        const isDateType = type.includes('date') || type.includes('time');
-        
-        columnSelect.innerHTML += `
-            <option value="${col.name}" 
-                    data-type="${type}"
-                    data-is-text="${isTextType}"
-                    data-is-numeric="${isNumericType}"
-                    data-is-date="${isDateType}">
-                ${col.name}
-            </option>
-        `;
-    });
+    columnSelect.innerHTML = `
+        <option value="">Select Column</option>
+        ${availableColumns
+            .filter(col => selectedColumns.has(col.name))
+            .map(col => `
+                <option value="${col.name}" 
+                    data-is-text="${col.type.toLowerCase().includes('char') || col.type.toLowerCase().includes('text')}"
+                    data-is-numeric="${col.type.toLowerCase().includes('int') || col.type.toLowerCase().includes('decimal') || col.type.toLowerCase().includes('float')}"
+                    data-is-date="${col.type.toLowerCase().includes('date') || col.type.toLowerCase().includes('time')}">
+                    ${col.name}
+                </option>
+            `).join('')}
+    `;
 }
